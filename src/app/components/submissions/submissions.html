@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <div>
+    <!-- <div (click)="back()" class="text-end mb-3">
+      <span class="btn btn-light border shadow-sm">← Back to Form</span>
+    </div> -->
+
+    <h3>All Forms</h3>
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of list">
+          <td>{{ item.id }}</td>
+
+          <td>
+            <span class="badge bg-secondary" *ngIf="item.status === 'draft'">Draft</span>
+            <span class="badge bg-primary" *ngIf="item.status === 'submitted'">Submitted</span>
+            <span class="badge bg-success" *ngIf="item.status === 'approved'">Approved</span>
+            <span class="badge bg-danger" *ngIf="item.status === 'rejected'">Rejected</span>
+          </td>
+
+          <td>{{ item.createdAt | date : 'short' }}</td>
+
+          <td>
+            <button
+              class="btn btn-success btn-sm me-2"
+              (click)="approve(item.id!)"
+              *ngIf="item.status !== 'approved'"
+            >
+              Approve
+            </button>
+
+            <button
+              class="btn btn-danger btn-sm me-2"
+              (click)="reject(item.id!)"
+              *ngIf="item.status !== 'rejected'"
+            >
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="list.length === 0" class="alert alert-info text-center">No submissions found!!</div>
+  </div>
+</div>

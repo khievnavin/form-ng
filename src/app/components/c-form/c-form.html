@@ -1,0 +1,63 @@
+<div *ngIf="formSchema" class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">{{ formSchema.title || 'Dynamic Form' }}</h5>
+    </div>
+
+    <div>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="card-body">
+        <div *ngFor="let field of formSchema.fields" class="mb-4">
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+
+          <!-- Input Fields -->
+          <input
+            *ngIf="field.type !== 'textarea' && field.type !== 'select'"
+            [type]="field.type"
+            [placeholder]="field.placeholder || field.label"
+            class="form-control"
+            [formControlName]="field.name"
+          />
+
+          <!-- Textarea -->
+          <textarea
+            *ngIf="field.type === 'textarea'"
+            rows="3"
+            [placeholder]="field.placeholder || field.label"
+            class="form-control"
+            [formControlName]="field.name"
+          ></textarea>
+
+          <!-- Select Dropdown -->
+          <select
+            *ngIf="field.type === 'select'"
+            class="form-select"
+            [formControlName]="field.name"
+          >
+            <option value="" disabled selected>Select {{ field.label }}</option>
+            <option *ngFor="let opt of field.options" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="d-flex justify-content-end mb-3">
+          <button type="button" class="btn btn-secondary me-2" (click)="saveDraft()">
+            Save Draft
+          </button>
+
+          <button type="submit" class="btn btn-primary me-2">Submit</button>
+        </div>
+        <!-- <div class="text-end">
+          <button type="submit" class="btn btn-primary px-4">Submit</button>
+        </div> -->
+      </form>
+    </div>
+
+    <!-- <h3 class="mb-3">Reorderable Draggable List</h3>
+    <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+      @for (movie of movies; track movie) {
+        <div class="example-box" cdkDrag>{{movie}}</div>
+      }
+    </div> -->
+  </div>
+</div>

@@ -1,0 +1,15 @@
+{
+  "title": "User Registration Form",
+  "fields": [
+    { "type": "text", "label": "First Name", "name": "firstName", "placeholder": "Enter first name" },
+    { "type": "text", "label": "Last Name", "name": "lastName", "placeholder": "Enter last name" },
+    { "type": "email", "label": "Email", "name": "email", "placeholder": "Enter your email" },
+    { "type": "select", "label": "Gender", "name": "gender",
+      "options": [
+        { "value": "male", "label": "Male" },
+        { "value": "female", "label": "Female" }
+      ]
+    },
+    { "type": "textarea", "label": "Description", "name": "desc" }
+  ]
+}
