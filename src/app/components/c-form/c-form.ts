@@ -5,7 +5,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 //import { formDB, Submission, SubmissionStatus } from '../../form.dto';
 import { Router } from '@angular/router';
-import { storageService, Submission } from '../../../storage.service';
+import { StorageService, Submission } from '../../../storage.service';
+import { WORKFLOW } from '../../workflow.config';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-c-form',
@@ -17,8 +19,15 @@ import { storageService, Submission } from '../../../storage.service';
 export class CForm implements OnInit {
   formSchema: any;
   form!: FormGroup;
+  submission?: Submission;
 
-  constructor(private http: HttpClient, private fb: FormBuilder, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder,
+    private router: Router,
+    private storage: StorageService,
+    private userService: UserService
+  ) {}
 
   @Output() formCancelled = new EventEmitter<void>();
 
@@ -63,37 +72,125 @@ export class CForm implements OnInit {
     console.log('Form cancelled by user.');
   }
 
+  generateId(): number {
+    const all = this.storage.getAll();
+    if (all.length === 0) return 1;
+    return Math.max(...all.map((x) => x.id)) + 1;
+  }
+
   saveDraft() {
     const doc: Submission = {
-      id: Date.now(),
+      id: this.generateId(),
       data: this.form.value,
       status: 'draft',
       createdAt: new Date(),
       updatedAt: new Date(),
+
+      currentStep: 1,
+      workflow: [
+        {
+          step: 1,
+          assignedTo: 'user1',
+          action: 'draft',
+          date: new Date(),
+          comment: 'Form saved as draft',
+        },
+      ],
     };
 
-    storageService.add(doc);
-    alert('Draft Saved!');
+    this.storage.add(doc);
+    this.router.navigate(['/submissions']);
   }
 
   submit() {
-    if (this.form.invalid) {
-      console.log('submitted!!', this.form.value);
-      alert('Invalid form. Fix errors.');
+  if (this.form.invalid) {
+    alert("Fix form errors.");
+    return;
+  }
+
+  const doc: Submission = {
+    id: this.generateId(),
+    data: this.form.value,
+    status: 'submitted',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+
+    currentStep: 1,
+    workflow: [
+      {
+        step: 1,
+        assignedTo: 'user1',
+        action: 'submitted',
+        date: new Date(),
+        comment: 'Form submitted'
+      }
+    ]
+  };
+
+  this.storage.add(doc);
+  this.router.navigate(['/submissions']);
+}
+
+
+  performAction(action: 'agree' | 'reject', comment: string) {
+    if (!this.submission) return;
+    const CURRENT_USER = this.userService.getCurrentUser();
+
+    const step = this.submission.currentStep;
+    const wf = this.submission.workflow;
+
+    if (action === 'reject') {
+      this.storage.update(this.submission.id, {
+        status: 'rejected',
+        workflow: [
+          ...wf,
+          {
+            step,
+            assignedTo: CURRENT_USER,
+            action: 'rejected',
+            comment,
+            date: new Date(),
+          },
+        ],
+      });
       return;
     }
 
-    const doc: Submission = {
-      data: this.form.value,
-      status: 'submitted',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      id: 0
-    };
+    // Action: Agree → Move to next step
+    const next = WORKFLOW.find((x) => x.step === step + 1);
 
-    storageService.add(doc);
-    alert('Form submitted!');
-    this.router.navigate(['/submissions']);
+    if (!next) {
+      // Final approval
+      this.storage.update(this.submission.id, {
+        status: 'approved',
+        workflow: [
+          ...wf,
+          {
+            step,
+            assignedTo: CURRENT_USER,
+            action: 'approved',
+            comment,
+            date: new Date(),
+          },
+        ],
+      });
+      return;
+    }
+
+    // Forward to next assigned user
+    this.storage.update(this.submission.id, {
+      currentStep: next.step,
+      workflow: [
+        ...wf,
+        {
+          step,
+          assignedTo: CURRENT_USER,
+          action: 'agreed',
+          comment,
+          date: new Date(),
+        },
+      ],
+    });
   }
 }
 

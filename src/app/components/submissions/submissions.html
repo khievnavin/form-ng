@@ -29,6 +29,14 @@
           <td>{{ item.createdAt | date : 'short' }}</td>
 
           <td>
+
+            <button
+              class="btn btn-outline-secondary btn-sm me-2"
+              (click)="view(item.id)"
+            >
+              View
+            </button>
+
             <button
               class="btn btn-success btn-sm me-2"
               (click)="approve(item.id!)"

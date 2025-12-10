@@ -43,10 +43,10 @@
 // }
 // }
 
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { storageService, Submission } from '../../../storage.service';
+import { StorageService, Submission } from '../../../storage.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-submissions',
@@ -58,21 +58,45 @@ import { storageService, Submission } from '../../../storage.service';
 export class Submissions implements OnInit {
   list: Submission[] = [];
 
+  constructor(private storageService: StorageService, private router: Router) {}
   ngOnInit() {
     this.load();
   }
 
   load() {
-    this.list = storageService.getAll();
+    this.list = this.storageService.getAll();
+    console.log('Load Form:', this.storageService.getAll());
   }
 
   approve(id: number) {
-    storageService.update(id, { status: 'approved' });
+    const item = this.list.find((x) => x.id === id);
+    if (!item) return;
+
+    // Prevent changes if already final
+    if (item.status === 'approved' || item.status === 'rejected') {
+      alert("This submission's status can no longer be changed.");
+      return;
+    }
+
+    this.storageService.update(id, { status: 'approved' });
     this.load();
   }
 
   reject(id: number) {
-    storageService.update(id, { status: 'rejected' });
+    const item = this.list.find((x) => x.id === id);
+    if (!item) return;
+
+    // Prevent changes if already final
+    if (item.status === 'approved' || item.status === 'rejected') {
+      alert("This submission's status can no longer be changed.");
+      return;
+    }
+
+    this.storageService.update(id, { status: 'rejected' });
     this.load();
+  }
+
+  view(id: number) {
+    this.router.navigate(['/submissions', id]);
   }
 }

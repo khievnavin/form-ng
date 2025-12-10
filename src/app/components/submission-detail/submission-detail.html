@@ -1,0 +1,128 @@
+<div class="container mt-4">
+  <!-- User Switcher -->
+  <div class="d-flex justify-content-end mb-3">
+    <select class="form-select w-auto shadow-sm" (change)="changeUser($event)">
+      <option value="user1">User 1</option>
+      <option value="user3">User 3</option>
+      <option value="user5">User 5</option>
+    </select>
+  </div>
+
+  <!-- Debug Info -->
+  <div class="alert alert-info shadow-sm rounded">
+    <b class="text-primary">DEBUG INFO</b><br />
+    <div class="mt-2">
+      <strong>Current User:</strong> {{ currentUser }}<br />
+
+      <strong>Assigned User:</strong>
+      {{` submission?.workflow.find(x => x.step === submission?.currentStep)?.assignedTo `}}<br />
+
+      <strong>Current Step:</strong> {{ submission?.currentStep }}<br />
+      <strong>Status:</strong> {{ submission?.status }}
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="mb-3 d-flex justify-content-between">
+    <button class="btn btn-light border shadow-sm" (click)="backToList()">
+      ← Back to Submissions
+    </button>
+
+    <button class="btn btn-outline-primary shadow-sm" (click)="backToForm()">Back to Form</button>
+  </div>
+
+  <!-- Not Found -->
+  <div *ngIf="notFound" class="alert alert-danger text-center shadow-sm">Submission not found.</div>
+
+  <!-- Submission Card -->
+  <div *ngIf="submission" class="card shadow-sm border-0 rounded-3">
+    <div
+      class="card-header bg-white border-0 d-flex justify-content-between align-items-center pb-0"
+    >
+      <h5 class="mb-0 fw-bold text-dark">Submission #{{ submission.id }}</h5>
+
+      <span
+        class="badge px-3 py-2"
+        [ngClass]="{
+          'bg-secondary': submission.status === 'draft',
+          'bg-primary': submission.status === 'submitted',
+          'bg-success': submission.status === 'approved',
+          'bg-danger': submission.status === 'rejected'
+        }"
+      >
+        {{ submission.status | titlecase }}
+      </span>
+    </div>
+
+    <div class="card-body">
+      <p class="text-muted small">Created: {{ submission.createdAt | date : 'short' }}</p>
+
+      <h6 class="fw-bold mb-2">Form Data</h6>
+
+      <table class="table table-hover table-sm">
+        <tbody>
+          <tr *ngFor="let key of submission.data | keyvalue">
+            <th style="width: 30%" class="text-muted small">{{ key.key }}</th>
+            <td class="fw-semibold">{{ key.value }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Action Section -->
+  <div *ngIf="submission && isAssignedUser() && !isFinalized()" class="mt-3">
+    <textarea
+      [(ngModel)]="comment"
+      class="form-control shadow-sm mb-3"
+      placeholder="Add a comment..."
+    ></textarea>
+
+    <button class="btn btn-success px-4 me-2 shadow-sm" (click)="performAction('agree', comment)">
+      Agree & Forward
+    </button>
+
+    <button class="btn btn-danger px-4 shadow-sm" (click)="performAction('reject', comment)">
+      Reject
+    </button>
+  </div>
+
+  <h5 class="mt-5 fw-bold">Workflow Timeline</h5>
+
+  <div class="timeline">
+    <div *ngFor="let step of submission?.workflow" class="timeline-item">
+      <!-- Bullet -->
+      <div
+        class="timeline-dot"
+        [ngClass]="{
+          completed:
+            step.action === 'submitted' || step.action === 'agreed' || step.action === 'approved',
+          rejected: step.action === 'rejected',
+          pending: step.action === 'pending'
+        }"
+      ></div>
+
+      <!-- Card -->
+      <div class="timeline-content card p-3">
+        <div class="d-flex justify-content-between">
+          <strong>Step {{ step.step }} – {{ step.assignedTo }}</strong>
+          <span
+            class="badge"
+            [ngClass]="{
+              'bg-primary': step.action === 'submitted',
+              'bg-success': step.action === 'agreed' || step.action === 'approved',
+              'bg-danger': step.action === 'rejected',
+              'bg-warning text-dark': step.action === 'pending'
+            }"
+          >
+            {{ step.action | titlecase }}
+          </span>
+        </div>
+
+        <p class="mb-1" *ngIf="step.comment">"{{ step.comment }}"</p>
+
+        <small class="text-muted">{{ step.date | date : 'short' }}</small>
+      </div>
+    </div>
+  </div>
+</div>

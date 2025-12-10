@@ -1,0 +1,65 @@
+Soft fade-in animation
+.card, .alert, .btn, textarea, select {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.timeline-item {
+  padding: 10px 15px;
+  border-left: 3px solid #0d6efd;
+  margin-bottom: 10px;
+  background: #f8f9ff;
+  border-radius: 4px;
+}
+
+
+.timeline {
+  position: relative;
+  margin-left: 20px;
+  padding-left: 15px;
+  border-left: 2px solid #ddd;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -11px;
+  top: 5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #888;
+  background: #fff;
+}
+
+.timeline-dot.completed {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.timeline-dot.rejected {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.timeline-dot.pending {
+  background: #ffc107;
+  border-color: #ffc107;
+}
+
+.timeline-content {
+  margin-left: 20px;
+  border-radius: 8px;
+}

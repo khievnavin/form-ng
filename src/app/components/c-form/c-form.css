@@ -40,7 +40,7 @@ textarea {
 }
 
 .btn-primary {
-  padding: 10px 30px;
+  padding: 10px 20px;
   border-radius: 8px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -69,6 +69,16 @@ textarea {
   justify-items: center;
   align-items: center;
 }
+
+.btn-save {
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+
 .example-list {
   width: 500px;
   max-width: 100%;
